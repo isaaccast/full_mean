@@ -2,7 +2,7 @@
 <html ng-app='myApp'>
   <head>
     <meta charset="utf-8">
-    <title>Questions and Answers</title>
+    <title>Doctor's Appointments</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-messages.js"></script>
@@ -85,81 +85,55 @@
       .when('/add',{
         templateUrl: 'partials/add.html'
       })
-      .when('/question', {
-        templateUrl: 'partials/question.html'
-      })
-      .when('/answer', {
-        templateUrl: 'partials/answer.html'
-      })
-      .when('/logout', {
-        templateUrl: 'partials/index.html'
-      })
-      .when('/:id', {
-        templateUrl: 'partials/question.html'
-      })
-      .when('/answer/:id', {
-        templateUrl: 'partials/answer.html'
-      })
       .otherwise({
         redirectTo: '/'
       });
     })
-      app.factory('questionFactory', function($http){
+      app.factory('appointmentFactory', function($http, $filter){
         var factory = {};
-        var questions = [];
-        var question;
-        factory.getQuestions = function(callback){
-          $http.get('/getQuestions').success(function(output){
-            questions = output;
-            callback(questions);
+        var appointments = [];
+        var appointment;
+        factory.getAppointments = function(callback){
+          $http.get('/getAppointments').success(function(output){
+            appointments = output;
+            callback(appointments);
           })
         }
-        factory.getOne = function(id, callback){
-          $http.post('/getOne', id).success(function(response){
-            callback(response);
-          })
+        factory.addAppointment = function(appointment, callback){
+           date = new Date();
+           hours = date.getHours();
+           time = appointment.time;
+           appt_time = time.getHours();
+           date_time = date.getHours();
+           console.log(date);
+           console.log(appt_time);
+          if(appointment.date < date && appt_time < date_time){
+            callback({status:false, errors:'Date has to be future dated'})
+          }else if(appt_time < 8){
+            callback({status:false, errors:'Time has to be between 8am and 5pm'})
+          }
+          else if(appt_time > 17){
+            callback({status:false, errors:'Time has to be between 8am and 5pm'})
+          }
+          else{
+            $http.post('/appointment', appointment).success(function(response){
+              if(response.status){
+                callback(response);
+              }else{
+                console.log('appointment was not entered');
+                callback(response);
+              }
+            })
+          }
         }
-        factory.display = function(callback){
-          console.log(question);
-          callback(question);
-        }
-        factory.getAnswers = function(id, callback){
-          $http.post('/getAnswers', id).success(function(data){
-            callback(data);
-          })
-        }
-        factory.addQuestion = function(question, callback){
-          $http.post('/question', question).success(function(){
+        factory.delete = function(user, callback){
+          $http.post('/delete', user).success(function(){
             callback();
           })
         }
         return factory;
       })
-      app.factory('answerFactory', function($http){
-        var factory = {};
-        var answers = [];
-        factory.getAnswers = function(callback){
-          $http.get('/getOrders').success(function(output){
-            orders = output;
-            callback(orders);
-          })
-        }
-        factory.getUser = function(callback){
-          callback(products);
-        }
-        factory.addAnswer = function(answer, question, user, callback){
-          $http.post('/addAnswer',{answer,question,user}).success(function(response){
-            callback(response);
-          })
-        }
-        factory.like = function(answer, callback){
-          console.log(answer, 'made it here');
-          $http.post('/addLike', {answer}).success(function(){
-            callback();
-          })
-        }
-        return factory;
-      })
+
       app.factory('userFactory', function($http){
         var factory = {};
         var sessionUser = {loggedIn: false};
@@ -197,92 +171,50 @@
         return factory;
       })
 
-      app.controller('index', function($scope, questionFactory, answerFactory) {
-        $scope.customers = [];
-        customerFactory.getCustomers(function(data){
-          $scope.customers = data;
-        })
-        $scope.addCustomer = function(){
-          customerFactory.newCustomer($scope.customer.name, function(data){
-            $scope.customers = data;
-            console.log($scope.customers);
-            $scope.customer = {};
-          });
-
-          }
-          $scope.removeCustomer = function(customer){
-            customerFactory.removeCustomer(customer, function(data){
-              $scope.customers = data;
-            });
-        }
-      })
-      app.controller('questions', function($scope, answerFactory, questionFactory, userFactory, $route, $routeParams){
+      app.controller('dashboard', function($scope, appointmentFactory, userFactory, $route, $location){
+        $scope.appointments = [];
         $scope.sessionUser = [];
-        $scope.question = [];
-        $scope.answers = [];
-        console.log($routeParams)
+        appointmentFactory.getAppointments(function(data){
+          $scope.appointments = data;
+        })
         userFactory.getSession(function(data){
           $scope.sessionUser = data;
         })
-        questionFactory.getOne($routeParams, function(data){
-          $scope.question = data;
-        })
-        questionFactory.getAnswers($routeParams, function(data){
-          $scope.answers = data.answers;
-          console.log($scope.answers);
-
-        })
-        $scope.addLike = function(answer){
-          answerFactory.like(answer, function(){
+        $scope.delete = function(user){
+          appointmentFactory.delete(user, function(){
             $route.reload();
-          });
-        }
-      })
-      app.controller('dashboard', function($scope, answerFactory, questionFactory, userFactory, $location){
-        $scope.questions = [];
-        $scope.one;
-        $scope.sessionUser = [];
-        questionFactory.getQuestions(function(data){
-          $scope.questions = data;
-        })
-        $scope.showQuestion = function(question){
-
-        }
-        userFactory.getSession(function(data){
-          $scope.sessionUser = data;
-        })
-      })
-      app.controller('add', function($scope, questionFactory, userFactory, $location){
-        $scope.addQuestion = function(){
-          questionFactory.addQuestion($scope.question, function(){
-            $location.url('/dashboard');
           })
         }
-        userFactory.getSession(function(data){
-          $scope.sessionUser = data;
-        })
-
       })
-      app.controller('answer', function($scope, questionFactory, answerFactory, userFactory, $location, $routeParams){
-        $scope.question;
-        $scope.sessionUser;
-        $scope.errors = [];
-        questionFactory.getOne($routeParams, function(data){
-          $scope.question = data;
-        })
+      app.controller('add', function($scope, appointmentFactory, userFactory, $location){
         userFactory.getSession(function(data){
           $scope.sessionUser = data;
+          console.log(data);
         })
-        $scope.addAnswer = function(question, user){
-          answerFactory.addAnswer($scope.answer, question, user, function(response){
-            console.log($scope.sessionUser);
-            if(!response.status){
+        $scope.addAppointment = function(){
+          var appointment = {};
+          var date = $scope.appointment.date;
+          var new_date = date.toLocaleDateString();
+          appointment = $scope.appointment;
+          if(!appointment){
+            appointment = $scope.sessionUser;
+          }else{
+            appointment.date = new_date;
+          appointment.name = $scope.sessionUser.name;
+        }
+          console.log(appointment);
+          $scope.errors = [];
+          appointmentFactory.addAppointment(appointment, function(response){
+            if (!response.status){
               $scope.errors.push(response.errors);
+              console.log("here");
             }else{
-            $location.url('/dashboard');
+              $location.url('/dashboard');
             }
           })
         }
+
+
       })
       app.controller('users', function($scope, userFactory, $location){
         $scope.sessionUser = {};
@@ -303,7 +235,6 @@
     </script>
   </head>
   <body>
-    <h1>Question and Answer</h1>
     <div ng-view="">
 
     </div>

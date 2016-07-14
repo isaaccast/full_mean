@@ -1,14 +1,13 @@
 <div ng-controller='add'>
-  <p><a href="#/dashboard">Home</a></p><p><a href="#/">Logout</a></p>
+  <h3>New Appointment</h3>
+  <label>Date:</label><input type="date" ng-model="appointment.date">
+  <label>Time:</label><input type="time" ng-model="appointment.time">
   <br>
-  {{sessionUser}}
-  <h3>New Question</h3>
-  <p>
-    Question
-  </p>
-  <input type="text" ng-model="question.title">
-  <input type="text" ng-model="question.description">
-
+  <label>Complaint:</label>
+  <br>
+   <textarea ng-model="appointment.complaint" rows="8" cols="40"></textarea>
+  <br>
 <button type="button"><a href="#/dashboard">Cancel</a></button>
-  <button type="button" ng-click='addQuestion()'>Submit</button>
+  <button type="button" ng-click='addAppointment()'>Add Appointment</button>
+  <p ng-repeat="error in errors track by $index" ng-bind="error"></p>
 </div>
