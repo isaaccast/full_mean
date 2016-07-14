@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html ng-app='myApp'>
+  <head>
+    <meta charset="utf-8">
+    <title>Questions and Answers</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-messages.js"></script>
+
+    </script>
+    <style media="screen">
+      .container{
+        margin: 30px;
+        height: 400px;
+        width: 800px;
+        border: 2px solid black;
+        padding: 20px;
+      }
+      table, th, td {
+        margin-top: 25px;
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      td{
+        text-align: center;
+        padding: 5px;
+      }
+      .products{
+        border: 1px solid black;
+        width: 461px;
+        height: 190px;
+        display: inline-block;
+      }
+      span{
+        display: inline-block;
+        margin: 5px;
+
+      }
+      img{
+        width: 100px;
+        height: 100px;
+      }
+      span p{
+        text-align: center;
+      }
+      .showall{
+        text-align: center;
+        display: block;
+      }
+      .side_bar{
+        display: inline-block;;
+        width: 169px;
+        height: 600px;
+        margin-top: 40px;
+        text-align: center;
+      }
+      .side_bar input{
+        margin-bottom: 30px;
+      }
+      .all_products{
+        display: inline-block;;
+        vertical-align: top;
+      }
+      a{
+        display: inline-block;
+        margin: 5px;
+      }
+      .answer input{
+        margin: 10px;
+      }
+      .answer button{
+        margin: 10px;
+      }
+    </style>
+    <script>
+    var app = angular.module('myApp', ['ngRoute', 'ngMessages']);
+    app.config(function($routeProvider){
+      $routeProvider
+      .when('/',{
+        templateUrl: 'partials/login.html'
+      })
+      .when('/dashboard', {
+        templateUrl: 'partials/dashboard.html'
+      })
+      .when('/add',{
+        templateUrl: 'partials/add.html'
+      })
+      .when('/question', {
+        templateUrl: 'partials/question.html'
+      })
+      .when('/answer', {
+        templateUrl: 'partials/answer.html'
+      })
+      .when('/logout', {
+        templateUrl: 'partials/index.html'
+      })
+      .when('/:id', {
+        templateUrl: 'partials/question.html'
+      })
+      .when('/answer/:id', {
+        templateUrl: 'partials/answer.html'
+      })
+      .otherwise({
+        redirectTo: '/'
+      });
+    })
+      app.factory('questionFactory', function($http){
+        var factory = {};
+        var questions = [];
+        var question;
+        factory.getQuestions = function(callback){
+          $http.get('/getQuestions').success(function(output){
+            questions = output;
+            callback(questions);
+          })
+        }
+        factory.getOne = function(id, callback){
+          $http.post('/getOne', id).success(function(response){
+            callback(response);
+          })
+        }
+        factory.display = function(callback){
+          console.log(question);
+          callback(question);
+        }
+        factory.getAnswers = function(id, callback){
+          $http.post('/getAnswers', id).success(function(data){
+            callback(data);
+          })
+        }
+        factory.addQuestion = function(question, callback){
+          $http.post('/question', question).success(function(){
+            callback();
+          })
+        }
+        return factory;
+      })
+      app.factory('answerFactory', function($http){
+        var factory = {};
+        var answers = [];
+        factory.getAnswers = function(callback){
+          $http.get('/getOrders').success(function(output){
+            orders = output;
+            callback(orders);
+          })
+        }
+        factory.getUser = function(callback){
+          callback(products);
+        }
+        factory.addAnswer = function(answer, question, user, callback){
+          $http.post('/addAnswer',{answer,question,user}).success(function(response){
+            callback(response);
+          })
+        }
+        factory.like = function(answer, callback){
+          console.log(answer, 'made it here');
+          $http.post('/addLike', {answer}).success(function(){
+            callback();
+          })
+        }
+        return factory;
+      })
+      app.factory('userFactory', function($http){
+        var factory = {};
+        var sessionUser = {loggedIn: false};
+        factory.getSession = function(callback){
+          $http.get('/session').success(function(response){
+            if(response.status){
+              sessionUser = response.sessionUser;
+              callback(sessionUser);
+            }else{
+              console.log('session is not set');
+            }
+          })
+        }
+        factory.getSession(function(data){
+          sessionUser = data;
+        });
+
+        factory.register = function(user_info, callback){
+          $http.post('/register', user_info).success(function(response){
+            sessionUser = response;
+            callback(response);
+          })
+        }
+
+        factory.index = function(callback){
+          $http.get('/users').success(function(response){
+            if (response.status){
+              callback(response);
+            }else{
+              console.log('error getting users')
+            }
+          })
+        }
+
+        return factory;
+      })
+
+      app.controller('index', function($scope, questionFactory, answerFactory) {
+        $scope.customers = [];
+        customerFactory.getCustomers(function(data){
+          $scope.customers = data;
+        })
+        $scope.addCustomer = function(){
+          customerFactory.newCustomer($scope.customer.name, function(data){
+            $scope.customers = data;
+            console.log($scope.customers);
+            $scope.customer = {};
+          });
+
+          }
+          $scope.removeCustomer = function(customer){
+            customerFactory.removeCustomer(customer, function(data){
+              $scope.customers = data;
+            });
+        }
+      })
+      app.controller('questions', function($scope, answerFactory, questionFactory, userFactory, $route, $routeParams){
+        $scope.sessionUser = [];
+        $scope.question = [];
+        $scope.answers = [];
+        console.log($routeParams)
+        userFactory.getSession(function(data){
+          $scope.sessionUser = data;
+        })
+        questionFactory.getOne($routeParams, function(data){
+          $scope.question = data;
+        })
+        questionFactory.getAnswers($routeParams, function(data){
+          $scope.answers = data.answers;
+          console.log($scope.answers);
+
+        })
+        $scope.addLike = function(answer){
+          answerFactory.like(answer, function(){
+            $route.reload();
+          });
+        }
+      })
+      app.controller('dashboard', function($scope, answerFactory, questionFactory, userFactory, $location){
+        $scope.questions = [];
+        $scope.one;
+        $scope.sessionUser = [];
+        questionFactory.getQuestions(function(data){
+          $scope.questions = data;
+        })
+        $scope.showQuestion = function(question){
+
+        }
+        userFactory.getSession(function(data){
+          $scope.sessionUser = data;
+        })
+      })
+      app.controller('add', function($scope, questionFactory, userFactory, $location){
+        $scope.addQuestion = function(){
+          questionFactory.addQuestion($scope.question, function(){
+            $location.url('/dashboard');
+          })
+        }
+        userFactory.getSession(function(data){
+          $scope.sessionUser = data;
+        })
+
+      })
+      app.controller('answer', function($scope, questionFactory, answerFactory, userFactory, $location, $routeParams){
+        $scope.question;
+        $scope.sessionUser;
+        $scope.errors = [];
+        questionFactory.getOne($routeParams, function(data){
+          $scope.question = data;
+        })
+        userFactory.getSession(function(data){
+          $scope.sessionUser = data;
+        })
+        $scope.addAnswer = function(question, user){
+          answerFactory.addAnswer($scope.answer, question, user, function(response){
+            console.log($scope.sessionUser);
+            if(!response.status){
+              $scope.errors.push(response.errors);
+            }else{
+            $location.url('/dashboard');
+            }
+          })
+        }
+      })
+      app.controller('users', function($scope, userFactory, $location){
+        $scope.sessionUser = {};
+        $scope.errors = [];
+        $scope.register = function(){
+          userFactory.register($scope.User, function(response){
+            if (!response.status){
+              $scope.errors.push(response.errors);
+              console.log("here");
+            }else{
+              $scope.sessionUser = response.sessionUser;
+              $location.url('/dashboard');
+            }
+          })
+
+        }
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Question and Answer</h1>
+    <div ng-view="">
+
+    </div>
+  </body>
+</html>

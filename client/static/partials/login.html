@@ -1,0 +1,9 @@
+<div class="container" ng-controller='users'>
+  <h2>Q and A</h2>
+  <p ng-repeat="error in errors track by $index" ng-bind="error"></p>
+  <p>
+    Name:
+  </p>
+  <input type="text" ng-model="User.name">
+  <button type="button" ng-click="register()">Enter</button>
+</div>

@@ -1,0 +1,19 @@
+{
+  "name": "mini_store_fullmean",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "path": "^0.12.7",
+    "mongoose": "^4.5.1",
+    "express": "^4.14.0",
+    "body-parser": "^1.15.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Isaac Castaneda",
+  "license": "ISC"
+}

@@ -1,0 +1,35 @@
+<div ng-controller='dashboard'>
+  <h2>Hi {{sessionUser.name}}</h2><a href="#/">Logout</a>
+  <a href="#/add">Add a Question</a>
+  <p>
+    Search:
+  </p>
+  <input type="text" ng-model="search">
+  <table>
+    <thead>
+      <th>
+        Question
+      </th>
+      <th>
+        Answers
+      </th>
+      <th>
+        Action
+      </th>
+    </thead>
+    <tbody>
+      <tr ng-repeat='question in questions | filter:search'>
+        <td>
+          {{question.title}}
+        </td>
+        <td>
+          {{question.num_of_answers}}
+        </td>
+        <td>
+          <a href="#/{{question._id}}">Show</a>
+          <a href="#/answer/{{question._id}}">Answer</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
