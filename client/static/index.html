@@ -6,7 +6,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-messages.js"></script>
-
     </script>
     <style media="screen">
       .container{
@@ -101,13 +100,19 @@
         }
         factory.addAppointment = function(appointment, callback){
            date = new Date();
+           _date = date.toLocaleDateString();
+           new_date = new Date(_date); 
+           console.log(date);
            hours = date.getHours();
            time = appointment.time;
            appt_time = time.getHours();
            date_time = date.getHours();
-           console.log(date);
+           console.log(new_date);
            console.log(appt_time);
-          if(appointment.date < date && appt_time < date_time){
+           console.log(date_time);
+          if(appointment.date < new_date && appt_time < date_time){
+            callback({status:false, errors:'Date has to be future dated'})
+          }else if(appointment.date < new_date){
             callback({status:false, errors:'Date has to be future dated'})
           }else if(appt_time < 8){
             callback({status:false, errors:'Time has to be between 8am and 5pm'})
@@ -194,7 +199,8 @@
         $scope.addAppointment = function(){
           var appointment = {};
           var date = $scope.appointment.date;
-          var new_date = date.toLocaleDateString();
+          var _date = date.toLocaleDateString();
+          var new_date = new Date(_date);
           appointment = $scope.appointment;
           if(!appointment){
             appointment = $scope.sessionUser;
@@ -207,6 +213,7 @@
           appointmentFactory.addAppointment(appointment, function(response){
             if (!response.status){
               $scope.errors.push(response.errors);
+              $scope.appointment = {};
               console.log("here");
             }else{
               $location.url('/dashboard');
