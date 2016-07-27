@@ -117,11 +117,12 @@
            appt_time = time.getHours();
            date_time = date.getHours();
            console.log(new_date);
+           console.log(appointment.date);
            console.log(appt_time);
            console.log(date_time);
           if(appointment.date < new_date){
             callback({status:false, errors:'Date has to be future dated'})
-          }else if(appt_time <= date_time){
+          }else if(appointment.date.getTime() == new_date.getTime() && appt_time <= date_time){
             callback({status:false, errors:'Date has to be future dated'})
           }else if(appt_time < 8){
             callback({status:false, errors:'Time has to be between 8am and 5pm'})
