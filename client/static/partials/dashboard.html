@@ -1,38 +1,48 @@
 <div ng-controller='dashboard'>
-  <h2>Hi {{sessionUser.name}}</h2><a href="#/">Logout</a>
-  <h2>Doctor's Appointments</h2>
-  <p>
-    Search:
-  </p>
-  <input type="text" ng-model="search">
-  <table>
-    <thead>
-      <th>
-        Date
-      </th>
-      <th>
-        Time
-      </th>
-      <th>
-        Patient Name
-      </th>
-      <th>
-        Complaint
-      </th>
-    </thead>
-    <tbody>
-      <tr ng-repeat='appointment in appointments | filter:search'>
-        <td ng-bind="appointment.date | date:'mediumDate' "></td>
-        <td ng-bind="appointment.time | date:'shortTime'"></td>
-        <td ng-bind="appointment.name"></td>
-        <td>
-          {{appointment.complaint}}
-          <div ng-if="appointment.name == sessionUser.name">
-            <button type="button" ng-click="delete(appointment)">Cancel</button>
+  <header class="w3-container w3-blue" style="padding-top:22px">
+    <h2>Doctor's Appointments</h2>
+  </header>
+  <div class="w3-container w3-animate-opacity">
+    <h2>Welcome {{sessionUser.name}}</h2><a href="#/">Logout</a>
+    <p>
+      Search:
+    </p>
+    <input type="text" ng-model="search">
+  </div>
+  <div class="w3-container">
+    <table class="w3-table w3-striped w3-bordered w3-card-4">
+      <thead>
+        <tr class="w3-blue">
+          <th>
+            Date
+          </th>
+          <th>
+            Time
+          </th>
+          <th>
+            Patient Name
+          </th>
+          <th>
+            Complaint
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat='appointment in appointments | filter:search'>
+          <div ng-if="appointment.date >= date">
+            <td ng-bind="appointment.date | date:'mediumDate' "></td>
+            <td ng-bind="appointment.time | date:'shortTime'"></td>
+            <td ng-bind="appointment.name"></td>
+            <td>
+              {{appointment.complaint}}
+              <div ng-if="appointment.name == sessionUser.name">
+                <button type="button" class="w3-btn w3-red" ng-click="delete(appointment)">Cancel</button>
+              </div>
+            </td>
           </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <button type="button"><a href="#/add">Add New Appointment</a></button>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" class="w3-btn-block w3-green"><a href="#/add">Add New Appointment</a></button>
+  </div>
 </div>

@@ -6,7 +6,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-messages.js"></script>
-    </script>
+    <!-- <script rel="stylesheet" src="ui-bootstrap-1.3.3-csp.css" media="screen" title="no title" charset="utf-8"></script>
+    <script rel="stylesheet" src="ui-bootstrap-1.3.3.js" media="screen" title="no title" charset="utf-8"></script>
+    <script rel="stylesheet" src="ui-bootstrap-1.3.3.min.js" media="screen" title="no title" charset="utf-8"></script> -->
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
     <style media="screen">
       .container{
         margin: 30px;
@@ -19,6 +24,7 @@
         margin-top: 25px;
         border: 1px solid black;
         border-collapse: collapse;
+        margin-bottom: 40px;
       }
       td{
         text-align: center;
@@ -70,6 +76,9 @@
       .answer button{
         margin: 10px;
       }
+      h2{
+        display: inline-block;
+      }
     </style>
     <script>
     var app = angular.module('myApp', ['ngRoute', 'ngMessages']);
@@ -101,7 +110,7 @@
         factory.addAppointment = function(appointment, callback){
            date = new Date();
            _date = date.toLocaleDateString();
-           new_date = new Date(_date); 
+           new_date = new Date(_date);
            console.log(date);
            hours = date.getHours();
            time = appointment.time;
@@ -110,9 +119,9 @@
            console.log(new_date);
            console.log(appt_time);
            console.log(date_time);
-          if(appointment.date < new_date && appt_time < date_time){
+          if(appointment.date < new_date){
             callback({status:false, errors:'Date has to be future dated'})
-          }else if(appointment.date < new_date){
+          }else if(appt_time <= date_time){
             callback({status:false, errors:'Date has to be future dated'})
           }else if(appt_time < 8){
             callback({status:false, errors:'Time has to be between 8am and 5pm'})
@@ -179,6 +188,9 @@
       app.controller('dashboard', function($scope, appointmentFactory, userFactory, $route, $location){
         $scope.appointments = [];
         $scope.sessionUser = [];
+        date = new Date();
+        _date = date.toLocaleDateString();
+        $scope.date = _date;
         appointmentFactory.getAppointments(function(data){
           $scope.appointments = data;
         })
@@ -198,27 +210,32 @@
         })
         $scope.addAppointment = function(){
           var appointment = {};
-          var date = $scope.appointment.date;
-          var _date = date.toLocaleDateString();
-          var new_date = new Date(_date);
-          appointment = $scope.appointment;
-          if(!appointment){
-            appointment = $scope.sessionUser;
+            if($scope.appointment != undefined && $scope.appointment.date != undefined && $scope.appointment.time != undefined && $scope.appointment.complaint != undefined){
+              var date = $scope.appointment.date;
+              var _date = date.toLocaleDateString();
+              var new_date = new Date(_date);
+              appointment = $scope.appointment;
+              if(!appointment){
+                appointment = $scope.sessionUser;
+              }else{
+                appointment.date = new_date;
+                appointment.name = $scope.sessionUser.name;
+              }
+              console.log(appointment);
+              $scope.errors = [];
+              appointmentFactory.addAppointment(appointment, function(response){
+                if (!response.status){
+                  $scope.errors.push(response.errors);
+                  $scope.appointment = {};
+                  console.log("here");
+                }else{
+                  $location.url('/dashboard');
+                }
+              })
           }else{
-            appointment.date = new_date;
-          appointment.name = $scope.sessionUser.name;
-        }
-          console.log(appointment);
-          $scope.errors = [];
-          appointmentFactory.addAppointment(appointment, function(response){
-            if (!response.status){
-              $scope.errors.push(response.errors);
-              $scope.appointment = {};
-              console.log("here");
-            }else{
-              $location.url('/dashboard');
-            }
-          })
+            $scope.errors = [];
+            $scope.errors.push('One or more input fields are blank');
+          }
         }
 
 

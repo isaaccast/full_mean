@@ -1,9 +1,13 @@
-<div class="container" ng-controller='users'>
-  <h2>Doctor's Appointments Login</h2>
-  <p ng-repeat="error in errors track by $index" ng-bind="error"></p>
-  <p>
-    Patient Name:
-  </p>
-  <input type="text" ng-model="User.name">
-  <button type="button" ng-click="register()">Log In</button>
+<div class='w3-container' ng-controller='users'>
+  <div class="w3-container" style="padding-top:22px">
+    <header class="w3-container w3-blue" style="padding-top:22px">
+      <h2>Doctor's Appointments Login</h2>
+    </header>
+    <p ng-repeat="error in errors track by $index" ng-bind="error" class="w3-label w3-validate"></p>
+    <p>
+      Patient Name:
+    </p>
+    <input class='w3-input' type="text" ng-model="User.name">
+    <button class="w3-btn-block w3-green" type="button" ng-click="register()" style='margin-top:20px'>Log In</button>
+  </div>
 </div>

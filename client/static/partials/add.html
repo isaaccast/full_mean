@@ -1,13 +1,19 @@
 <div ng-controller='add'>
-  <h3>New Appointment</h3>
-  <label>Date:</label><input type="date" ng-model="appointment.date">
-  <label>Time:</label><input type="time" ng-model="appointment.time">
-  <br>
-  <label>Complaint:</label>
-  <br>
-   <textarea ng-model="appointment.complaint" rows="8" cols="40"></textarea>
-  <br>
-<button type="button"><a href="#/dashboard">Cancel</a></button>
-  <button type="button" ng-click='addAppointment()'>Add Appointment</button>
-  <p ng-repeat="error in errors track by $index" ng-bind="error"></p>
+  <header class="w3-container w3-blue" style="padding-top:22px">
+    <h3>New Appointment</h3>
+  </header>
+  <div class="w3-container">
+    <label>Date:</label>
+    <input class="w3-input" type="date" ng-model="appointment.date">
+    <label>Time:</label>
+    <input class="w3-input" type="time" ng-model="appointment.time">
+    <br>
+    <label>Complaint:</label>
+    <br>
+     <textarea class="w3-input" ng-model="appointment.complaint" rows="8" cols="40"></textarea>
+    <br>
+    <button class="w3-btn w3-red" type="button"><a href="#/dashboard" style="text-decoration:none">Cancel</a></button>
+    <button class="w3-btn w3-green" type="button" ng-click='addAppointment()'>Add Appointment</button>
+    <p ng-repeat="error in errors track by $index" ng-bind="error"></p>
+  </div>
 </div>
